@@ -1,0 +1,9 @@
+<nav>
+    <div class="flex navbar bg-gray-800 text-white p-4">
+            <% navbarLinks.forEach(link => { %>
+                <a href="<%= link.href %>" class="px-5">
+                    <img src="<%= link.icon %>" alt="<%= link.text %> Icon">
+                </a>
+            <% }); %>
+    </div>
+</nav>

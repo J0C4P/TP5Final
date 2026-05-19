@@ -1,0 +1,144 @@
+<div class="divide-y divide-black">
+    <div>
+        <a href="/countries" class="bg-gray-500">Volver al dashboard</a>
+    </div>
+    <form id="editCountryForm" class="divide-y divide-black">
+            <div class="py-2">
+            <% if (errors['nombre.oficial']) { %>
+                <p class="text-red-500"> ▼ <%= errors['nombre.oficial'] %></p>
+                <label for="nombre.oficial" class="font-semibold text-red-700">Nombre Oficial:</label>
+                <input type="text" id="nombre.oficial" name="nombre.oficial" class="border" required>
+            <% } else { %>
+                <label for="nombre.oficial" class="font-semibold">Nombre Oficial:</label>
+                <input type="text" id="nombre.oficial" name="nombre.oficial" class="border" value="<%= oldData.nombre.oficial %>" required>
+            <% } %>
+        </div>
+        <div class="py-2">
+            <% if (errors['nombre.comun']) { %>
+                <p class="text-red-500"> ▼ <%= errors['nombre.comun'] %></p>
+                <label for="nombre.comun" class="font-semibold text-red-700">Nombre Común:</label>
+                <input type="text" id="nombre.comun" name="nombre.comun" class="border" required>
+            <% } else { %>
+                <label for="nombre.comun" class="font-semibold">Nombre Común:</label>
+                <input type="text" id="nombre.comun" name="nombre.comun" class="border" value="<%= oldData.nombre.comun %>" required>
+            <% } %>
+        </div>
+        <div class="py-2">
+            <% if (errors.capital) { %>
+                <p class="text-red-500"> ▼ <%= errors.capital %></p>
+                <label for="capital" class="font-semibold text-red-700">Capital:</label>
+                <input type="text" id="capital" name="capital" class="border" value="<%= oldData.capital %>" required>
+            <% } else { %>
+                <label for="capital" class="font-semibold">Capital:</label>
+                <input type="text" id="capital" name="capital" class="border" value="<%= oldData.capital %>" required>
+            <% } %>
+        </div>
+        <div class="py-2">
+            <% if (errors['fronterasItem']) { %>
+                <p class="text-red-500"> ▼ <%= errors['fronterasItem'] %></p>
+                <label for="fronteras" class="font-semibold text-red-700">Fronteras:</label>
+            <% } else { %>
+                <label for="fronteras" class="font-semibold">Fronteras:</label>
+            <% } %>
+            <% const fronteras = oldData.fronteras || [] %>
+            <ul>
+                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 1" value="<%= fronteras[0] || '' %>" required>
+                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 2" value="<%= fronteras[1] || ''%>">
+                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 3" value="<%= fronteras[2] || ''%>">
+                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 4" value="<%= fronteras[3] || ''%>">
+                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 5" value="<%= fronteras[4] || ''%>">
+            </ul>
+        </div>
+        <div class="py-2">
+            <% if (errors.area) { %>
+                <p class="text-red-500"> ▼ <%= errors.area %></p>
+                <label for="area" class="font-semibold text-red-700">Área:</label>
+                <input type="float" id="area" name="area" class="border" value="<%= oldData.area %>" required>
+            <% } else { %>
+                <label for="area" class="font-semibold">Área:</label>
+                <input type="float" id="area" name="area" class="border" value="<%= oldData.area %>" required>
+            <% } %>
+        </div>
+        <div class="py-2">
+            <% if (errors.poblacion) { %>
+                <p class="text-red-500"> ▼ <%= errors.poblacion %></p>
+                <label for="poblacion" class="font-semibold text-red-700">Población:</label>
+                <input type="number" id="poblacion" name="poblacion" class="border" value="<%= oldData.poblacion %>" required>
+            <% } else { %>
+                <label for="poblacion" class="font-semibold">Población:</label>
+                <input type="number" min="0" id="poblacion" name="poblacion" class="border" value="<%= oldData.poblacion %>" required>
+            <% } %>
+        </div>
+        <div class="py-2">
+            <% if (errors.subregion) { %>
+                <p class="text-red-500"> ▼ <%= errors.subregion %></p>
+                <label for="subregion" class="font-semibold text-red-700">Sub Región:</label>
+                <input type="text" id="subregion" name="subregion" class="border" value="<%= oldData.subregion %>" required>
+            <% } else { %>
+                <label for="subregion" class="font-semibold">Sub Región:</label>
+                <input type="text" id="subregion" name="subregion" class="border" value="<%= oldData.subregion %>" required>
+            <% } %>
+        </div>
+        <div class="flex border py-2">
+            <label for="utcOffset" class="font-semibold">Zona Horaria: UTC&nbsp</label>
+            <%
+            let utcValue = '';
+            if (oldData.zonahoraria) {
+                const match = oldData.zonahoraria.match(/UTC([+-])(\d+)/);
+                if (match) utcValue = match[1] === '-' ? -Number(match[2]) : Number(match[2]);
+            }
+            %>
+            <input type="number" min="-12" max="12" id="utcOffset" class="border w-9" value="<%= utcValue %>" required>
+            <p> :00</p>
+            <input type="hidden" id="zonahoraria" name="zonahoraria">
+        </div>
+        <button type="submit" class="bg-blue-500 font-bold">Guardar Cambios</button>
+</div>
+<!-- Scripts auxiliares -->
+<script>
+    const form = document.getElementById('editCountryForm');
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        
+        //Limpiar campos vacíos del array de fronteras
+        const inputs = Array.from(form.querySelectorAll('input[name="fronteras"]'));
+        inputs.forEach(input => {
+            if (!input.value.trim()) {
+                input.disabled = true;
+            }
+        });
+        //Dar Formato a ZonaHoraria
+        const offset = Number(document.getElementById('utcOffset').value);
+        const formattedOffset = String(Math.abs(offset)).padStart(2,'0');
+        const finalTimeZone = `UTC${offset >= 0 ? '+' : '-'}${formattedOffset}:00`;
+        document.getElementById('zonahoraria').value = finalTimeZone;
+        //Serializar Formulario 
+        const formData = new FormData(form);
+        const body = {};
+        formData.forEach((value, key) => {
+            if (body[key] !== undefined) {
+                body[key] = [].concat(body[key], value);
+            } else {
+                body[key] = value;
+            }
+        });
+        //Redireccionar Formulario a endpoint PUT
+        const id = "<%= oldData._id %>";
+        const response = await fetch(`/countries/edit/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        });
+        
+        if (response.ok) {
+            window.location.href = '/countries';
+        } else {
+            const errorText = await response.text();
+            console.log('Status:', response.status);
+            console.log('Response:', errorText);
+            alert(`Error al guardar los cambios. Status: ${response.status}`);
+        }
+    });
+</script>

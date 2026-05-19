@@ -1,0 +1,75 @@
+<div class="divide-y divide-black">
+    <% if (countries && countries.length > 0) { %>
+    <% countries.forEach(country => { %>
+    <% if (country.nombre.oficial) { %>
+        <div class="py-0">
+            <h5 class="font-bold flex">
+                <p class="text-red-500"><%= country.nombre.oficial %></p>
+                <% if (country.bandera) { %>
+                    <p class="px-2">(<%= country.bandera %>)</p>
+                <% } %>
+            </h5>
+            <% if (country.capital) { %>
+                <p class="font-semibold">Capitál: <%= country.capital %></p>
+            <% } %>
+            <% if (country.fronteras) { %>
+                <p class="font-semibold">Fronteras: <%= country.fronteras.join(', ') %></p>
+            <% } %>
+            <% if (country.area) { %>
+                <p class="font-semibold">Área: <%= country.area %></p>
+            <% } %>
+            <% if (country.poblacion) { %>
+                <p class="font-semibold">Población: <%= country.poblacion %></p>
+            <% } %>
+            <% if (country.zonahoraria) { %>
+                <p class="font-semibold">Zona horaria: <%= country.zonahoraria %></p>
+            <% } %>
+            <% if (country.creador) { %>
+                <p class="font-semibold">Creador: <%= country.creador %></p>
+            <% } %>
+            <a href="/countries/edit/<%= country._id %>" class="bg-yellow-500 font-bold">EDITAR</a>
+            <button type="button" class="bg-red-500 font-bold"
+            onclick="confirmDelete('<%= country._id%>','<%= country.nombre.oficial %>')">
+                ELIMINAR
+            </button>
+        </div>
+    <% } %>
+    <% }) %>
+    <% } else { %>
+        <div>
+            <p>No se encontraron países.</p>
+        </div>
+    <% } %>
+</div>
+<!-- Script para confirmar eliminación -->
+<script>
+    async function confirmDelete(id, nombre) {
+        console.log('Iniciando eliminación de país con ID:', id);
+        const confirmed = confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.ID: ${id}`);
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/countries/eliminar/${id}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                let errorMsg = 'No se pudo eliminar el país.(Dashboard)';
+                try {
+                    const body = await response.json();
+                    if (body.mensaje) errorMsg += '\n' + body.mensaje;
+                    if (body.error) errorMsg += '\n' + body.error;
+                } catch (e) {
+                    errorMsg += '\nError desconocido (status ' + response.status + ')';
+                }
+                alert(errorMsg);
+                console.error('Delete error:', response.status, response.statusText);
+            }
+        } catch (err) {
+            alert('Error de conexión: ' + err.message);
+            console.error('Fetch error:', err);
+        }
+    }
+</script>
