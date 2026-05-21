@@ -1,8 +1,41 @@
-<div class="divide-y divide-black">
+<!-- Barra de búsqueda y filtros -->
+<div style="padding:8px 0; border-bottom:1px solid black;">
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;">
+        <div>
+            <label for="filter-search" style="font-weight:600; display:block; font-size:0.85em;">Buscar (nombre o capital)</label>
+            <input id="filter-search" type="text" placeholder="Nombre o capital..." style="border:1px solid #aaa; padding:2px 6px;">
+        </div>
+        <div>
+            <label for="filter-subregion" style="font-weight:600; display:block; font-size:0.85em;">Subregión</label>
+            <select id="filter-subregion" style="border:1px solid #aaa; padding:2px 6px;">
+                <option value="">Todas</option>
+                <option value="south america">Sudamérica</option>
+                <option value="caribbean">Caribe</option>
+                <option value="central america">Centroamérica</option>
+                <option value="north america">Norteamérica</option>
+            </select>
+        </div>
+        <div>
+            <label style="font-weight:600; display:block; font-size:0.85em;">Población (rango)</label>
+            <input id="filter-pobl-min" type="number" min="0" placeholder="Mín" style="border:1px solid #aaa; padding:2px 4px; width:80px;">
+            &ndash;
+            <input id="filter-pobl-max" type="number" min="0" placeholder="Máx" style="border:1px solid #aaa; padding:2px 4px; width:80px;">
+        </div>
+        <button id="btn-clear-filters" type="button" style="padding:2px 10px; border:1px solid #aaa; background:#eee; font-weight:600;">Limpiar</button>
+    </div>
+    <p id="filter-count" style="font-size:0.8em; color:#555; margin-top:4px;"></p>
+</div>
+
+<!-- Lista de países -->
+<div id="country-list" class="divide-y divide-black">
     <% if (countries && countries.length > 0) { %>
     <% countries.forEach(country => { %>
     <% if (country.nombre.oficial) { %>
-        <div class="py-0">
+        <div class="py-0 country-card"
+             data-nombre="<%= (country.nombre.oficial + ' ' + (country.nombre.comun||'')).toLowerCase() %>"
+             data-capital="<%= (country.capital||'').toString().toLowerCase() %>"
+             data-subregion="<%= (country.subregion||'').toLowerCase() %>"
+             data-poblacion="<%= country.poblacion || 0 %>">
             <h5 class="font-bold flex">
                 <p class="text-red-500"><%= country.nombre.oficial %></p>
                 <% if (country.bandera) { %>
@@ -41,8 +74,82 @@
         </div>
     <% } %>
 </div>
-<!-- Script para confirmar eliminación -->
+
+<!-- Script de filtros y eliminación -->
 <script>
+    // --- Filtros del dashboard ---
+
+    // Se obtienen todas las tarjetas de país renderizadas en el HTML.
+    // Cada tarjeta tiene atributos data-* con sus datos en minúsculas,
+    // lo que permite comparaciones sin distinguir mayúsculas de minúsculas.
+    const cards = Array.from(document.querySelectorAll('.country-card'));
+    const totalCount = cards.length; // cantidad total de países, para el contador
+
+    function applyFilters() {
+        // Se leen los valores actuales de cada control de filtro.
+        // .trim().toLowerCase() normaliza el texto para que la búsqueda no sea sensible a mayúsculas.
+        const search    = document.getElementById('filter-search').value.trim().toLowerCase();
+
+        // El select de subregión ya tiene los values en minúsculas (ej: 'south america'),
+        // por lo que no hace falta normalizar.
+        const subregion = document.getElementById('filter-subregion').value;
+
+        // Si el campo de población mínima está vacío, Number('') devuelve NaN → || 0 lo convierte a 0.
+        // Si el máximo está vacío se usa Infinity para que no excluya nada por arriba.
+        const poblMin   = Number(document.getElementById('filter-pobl-min').value) || 0;
+        const poblMax   = Number(document.getElementById('filter-pobl-max').value) || Infinity;
+
+        let visible = 0; // contador de tarjetas que pasan todos los filtros
+
+        cards.forEach(card => {
+            // Búsqueda universal: el texto ingresado se compara contra el nombre del país
+            // (oficial + común) Y contra la capital. Basta con que coincida con uno de los dos.
+            // Si 'search' está vacío (!search es true) la condición pasa siempre.
+            const matchSearch = !search ||
+                card.dataset.nombre.includes(search) ||
+                card.dataset.capital.includes(search);
+
+            // Filtro de subregión: comparación exacta (===) porque los valores del <select>
+            // son strings fijos que coinciden exactamente con data-subregion de cada tarjeta.
+            // Si el select está en 'Todas' (value=''), la condición pasa siempre.
+            const matchSubregion = !subregion || card.dataset.subregion === subregion;
+
+            // Filtro de rango de población: se convierte data-poblacion a número y se verifica
+            // que esté dentro del rango [poblMin, poblMax].
+            const pobl = Number(card.dataset.poblacion);
+            const matchPobl = pobl >= poblMin && pobl <= poblMax;
+
+            // Una tarjeta se muestra solo si pasa los tres filtros simultáneamente (AND).
+            const show = matchSearch && matchSubregion && matchPobl;
+            card.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        // Actualiza el contador de resultados debajo de los filtros.
+        // Si todos los países están visibles no se muestra nada (la barra queda limpia).
+        const countEl = document.getElementById('filter-count');
+        if (visible === totalCount) {
+            countEl.textContent = '';
+        } else {
+            countEl.textContent = `Mostrando ${visible} de ${totalCount} países`;
+        }
+    }
+
+    // Se registra el evento 'input' en cada control para que los filtros se apliquen
+    // en tiempo real con cada tecla pulsada o cambio de selección, sin necesidad de
+    // presionar ningún botón de confirmación.
+    ['filter-search','filter-subregion','filter-pobl-min','filter-pobl-max']
+        .forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
+
+    // El botón 'Limpiar' resetea todos los controles a su estado vacío/por defecto
+    // y vuelve a ejecutar applyFilters para mostrar todos los países nuevamente.
+    document.getElementById('btn-clear-filters').addEventListener('click', () => {
+        ['filter-search','filter-subregion','filter-pobl-min','filter-pobl-max']
+            .forEach(id => document.getElementById(id).value = '');
+        applyFilters();
+    });
+
+    // --- Eliminación ---
     async function confirmDelete(id, nombre) {
         console.log('Iniciando eliminación de país con ID:', id);
         const confirmed = confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.ID: ${id}`);
@@ -72,4 +179,4 @@
             console.error('Fetch error:', err);
         }
     }
-</script>
+</script>

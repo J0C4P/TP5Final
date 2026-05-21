@@ -106,23 +106,32 @@ const validateEditRequest = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         console.log('Errores de validación: ', errors.array());
-        //Mapear Errores para mostrar en la vista
+
+        // Se construye un mapa { campo: primerMensajeDeError } a partir del array
+        // de errores de express-validator. Solo se guarda el primer error por campo
+        // para no sobrecargar al usuario con múltiples mensajes simultáneos.
         const errorMap = {};
         errors.array().forEach(error => {
             if (!errorMap[error.path]) {
                 errorMap[error.path] = error.msg;
             }
+            // Los errores del array 'fronteras' tienen paths como 'fronteras[0]', 'fronteras[1]', etc.
+            // Se agrupan bajo la clave artificial 'fronterasItem' para mostrar un único
+            // mensaje de error junto al label de fronteras en lugar de uno por cada índice.
             if (error.path.startsWith('fronteras') && !errorMap['fronterasItem']) {
                 errorMap['fronterasItem'] = error.msg;
             }
         });
-        // El formulario de edición usa fetch (AJAX), por eso devolvemos JSON con los errores
-        // para que el cliente pueda manejarlos y mostrarlos correctamente.
+
+        // A diferencia de validateCreateRequest (que usa res.render porque el form de alta
+        // hace un POST normal que recarga la página), el form de edición usa fetch/AJAX.
+        // Por eso se responde con JSON 422 en lugar de renderizar HTML: el cliente recibe
+        // los errores como datos y los inyecta en el DOM sin necesidad de recargar la página.
         console.log(req.body);
         return res.status(422).json({
             errors: errorMap,
             oldData: req.body
-        });       
+        });
     }
     console.log('Validación exitosa, datos válidos: ', req.body);
     next();
