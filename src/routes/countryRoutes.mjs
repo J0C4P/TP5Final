@@ -116,9 +116,10 @@ const validateEditRequest = (req, res, next) => {
                 errorMap['fronterasItem'] = error.msg;
             }
         });
-        //Redireccionar a vista de edición con errores y datos antiguos
+        // El formulario de edición usa fetch (AJAX), por eso devolvemos JSON con los errores
+        // para que el cliente pueda manejarlos y mostrarlos correctamente.
         console.log(req.body);
-        return res.render('editCountry', {
+        return res.status(422).json({
             errors: errorMap,
             oldData: req.body
         });       

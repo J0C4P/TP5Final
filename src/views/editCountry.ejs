@@ -93,12 +93,17 @@
             <input type="hidden" id="zonahoraria" name="zonahoraria">
         </div>
         <button type="submit" class="bg-blue-500 font-bold">Guardar Cambios</button>
+    </form>
 </div>
 <!-- Scripts auxiliares -->
 <script>
     const form = document.getElementById('editCountryForm');
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
+        
+        //Limpiar mensajes de error previos y estilos
+        document.querySelectorAll('.error-msg').forEach(el => el.remove());
+        form.querySelectorAll('label').forEach(el => el.style.color = '');
         
         //Limpiar campos vacíos del array de fronteras
         const inputs = Array.from(form.querySelectorAll('input[name="fronteras"]'));
@@ -112,6 +117,7 @@
         const formattedOffset = String(Math.abs(offset)).padStart(2,'0');
         const finalTimeZone = `UTC${offset >= 0 ? '+' : '-'}${formattedOffset}:00`;
         document.getElementById('zonahoraria').value = finalTimeZone;
+        
         //Serializar Formulario 
         const formData = new FormData(form);
         const body = {};
@@ -122,6 +128,7 @@
                 body[key] = value;
             }
         });
+        
         //Redireccionar Formulario a endpoint PUT
         const id = "<%= oldData._id %>";
         const response = await fetch(`/countries/edit/${id}`, {
@@ -134,10 +141,37 @@
         
         if (response.ok) {
             window.location.href = '/countries';
+        } else if (response.status === 422) {
+            const { errors } = await response.json();
+
+            // Mapa de clave de error → selector del label/referencia en el form
+            const fieldSelectors = {
+                'nombre.oficial': 'label[for="nombre.oficial"]',
+                'nombre.comun':   'label[for="nombre.comun"]',
+                'capital':        'label[for="capital"]',
+                'area':           'label[for="area"]',
+                'poblacion':      'label[for="poblacion"]',
+                'subregion':      'label[for="subregion"]',
+                'fronterasItem':  'label[for="fronteras"]',
+            };
+
+            for (const [key, selector] of Object.entries(fieldSelectors)) {
+                if (errors[key]) {
+                    const label = form.querySelector(selector);
+                    if (label) {
+                        const p = document.createElement('p');
+                        p.className = 'text-red-800 font-bold error-msg';
+                        p.style.margin = '0';
+                        p.textContent = '▼ ' + errors[key];
+                        label.parentNode.insertBefore(p, label);
+                        label.style.color = '#b91c1c';
+                    }
+                }
+            }
+            // Re-habilitar inputs de fronteras para el próximo intento
+            inputs.forEach(input => input.disabled = false);
         } else {
             const errorText = await response.text();
-            console.log('Status:', response.status);
-            console.log('Response:', errorText);
             alert(`Error al guardar los cambios. Status: ${response.status}`);
         }
     });
