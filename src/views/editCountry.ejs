@@ -98,21 +98,14 @@
 <!-- Scripts auxiliares -->
 <script>
     const form = document.getElementById('editCountryForm');
-
-    // Se usa 'submit' con preventDefault() en lugar de dejar que el formulario navegue
-    // normalmente, porque el endpoint de edición es PUT y los formularios HTML solo
-    // soportan GET/POST. El envío se maneja manualmente con fetch.
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        // Antes de cada intento de envío se eliminan los mensajes de error anteriores
-        // y se restaura el color original de los labels, para no acumular errores viejos.
+        //Limpiar mensajes de errores previos 
         document.querySelectorAll('.error-msg').forEach(el => el.remove());
         form.querySelectorAll('label').forEach(el => el.style.color = '');
 
-        // Los inputs de fronteras vacíos se deshabilitan antes de serializar el formulario.
-        // Un input deshabilitado no se incluye en FormData, lo que evita enviar
-        // strings vacíos al servidor y que fallen las validaciones de longitud mínima.
+        //Limpiar campos vacíos del array de fronteras
         const inputs = Array.from(form.querySelectorAll('input[name="fronteras"]'));
         inputs.forEach(input => {
             if (!input.value.trim()) {
@@ -120,18 +113,13 @@
             }
         });
 
-        // El formulario muestra un campo numérico simple (utcOffset) para que el usuario
-        // ingrese el número de horas de diferencia UTC (ej: -3). Antes de enviar se
-        // convierte al formato estándar "UTC+HH:00" / "UTC-HH:00" y se guarda en el
-        // input hidden 'zonahoraria' que sí se envía al servidor.
+        //Dar Formato a ZonaHoraria (UTC±HH:00)
         const offset = Number(document.getElementById('utcOffset').value);
         const formattedOffset = String(Math.abs(offset)).padStart(2,'0');
         const finalTimeZone = `UTC${offset >= 0 ? '+' : '-'}${formattedOffset}:00`;
         document.getElementById('zonahoraria').value = finalTimeZone;
 
-        // FormData recoge automáticamente todos los campos habilitados del formulario.
-        // Se convierte a un objeto plano (body) para poder serializarlo como JSON.
-        // Si una clave aparece varias veces (como 'fronteras'), se agrupa en un array.
+        //Formatear data del formulario en un objeto plano para enviarlo como JSON
         const formData = new FormData(form);
         const body = {};
         formData.forEach((value, key) => {
@@ -142,8 +130,7 @@
             }
         });
 
-        // Se envía el formulario al endpoint PUT correspondiente al país que se está editando.
-        // El id se inyecta en tiempo de render por EJS para que el cliente lo conozca.
+        //Enviar Formulario al servidor con fetch a la ruta PUT
         const id = "<%= oldData._id %>";
         const response = await fetch(`/countries/edit/${id}`, {
             method: 'PUT',
@@ -154,54 +141,62 @@
         });
 
         if (response.ok) {
-            // Si el servidor respondió 200, la edición fue exitosa: se redirige al dashboard.
             window.location.href = '/countries';
 
         } else if (response.status === 422) {
-            // El servidor devuelve 422 (Unprocessable Entity) cuando la validación falla.
-            // La respuesta contiene un objeto JSON con la forma { errors: { campo: mensaje } }.
-            // Esto es diferente al formulario de alta (addCountry) que usa POST normal y
-            // recibe la página re-renderizada. Aquí se manejan los errores en el cliente.
+            //Ante un error de validación, manejar errores presentes en response.json()
             const { errors } = await response.json();
-
-            // Mapa que asocia cada clave de error (igual al 'path' de express-validator)
-            // con el selector CSS del <label> correspondiente en el formulario.
-            // Se usa para saber dónde insertar el mensaje de error en el DOM.
+            //Asociar cada error a su campo correspondiente
             const fieldSelectors = {
-                'nombre.oficial': 'label[for="nombre.oficial"]',
-                'nombre.comun':   'label[for="nombre.comun"]',
-                'capital':        'label[for="capital"]',
-                'area':           'label[for="area"]',
-                'poblacion':      'label[for="poblacion"]',
-                'subregion':      'label[for="subregion"]',
-                // 'fronterasItem' es una clave artificial creada en el servidor para
-                // agrupar todos los errores del array 'fronteras' bajo un solo mensaje.
-                'fronterasItem':  'label[for="fronteras"]',
+                'nombre.oficial': { 
+                    label: 'label[for="nombre.oficial"]',
+                    input: 'input[name="nombre.oficial"]'
+                },
+                'nombre.comun': { 
+                    label: 'label[for="nombre.comun"]',
+                    input: 'input[name="nombre.comun"]'
+                },
+                'capital': {
+                    label: 'label[for="capital"]',
+                    input: 'input[name="capital"]' 
+                },
+                'area': {
+                    label: 'label[for="area"]',
+                    input: 'input[name="area"]'
+                },
+                'poblacion': {
+                    label: 'label[for="poblacion"]',
+                    input: 'input[name="poblacion"]'
+                },
+                'subregion': { 
+                    label: 'label[for="subregion"]', 
+                    input: 'input[name="subregion"]' 
+                },
+                'fronterasItem': {
+                    label: 'label[for="fronteras"]',
+                    input: 'input[name="fronteras"]'
+                },
             };
-
-            // Por cada campo con error se crea un <p> rojo con el mensaje y se inserta
-            // justo antes del <label> del campo afectado. También se pinta el label de rojo
-            // para reforzar visualmente cuál campo tiene el problema.
+            //<p> auxiliar para mostrar mensaje de error
             for (const [key, selector] of Object.entries(fieldSelectors)) {
                 if (errors[key]) {
-                    const label = form.querySelector(selector);
+                    const label = form.querySelector(selector.label);
                     if (label) {
                         const p = document.createElement('p');
-                        p.className = 'text-red-800 font-bold error-msg';
-                        p.style.margin = '0';
+                        p.className = 'text-red-800 font-bold';
                         p.textContent = '▼ ' + errors[key];
                         label.parentNode.insertBefore(p, label);
-                        label.style.color = '#b91c1c';
+                    }
+                    const input = form.querySelector(selector.input);
+                    if (input) {
+                        input.classList.add('text-red-500', 'font-bold');
+                        input.style.borderColor = 'red';
                     }
                 }
             }
-
-            // Se vuelven a habilitar los inputs de fronteras que fueron deshabilitados
-            // antes del envío, para que el usuario pueda corregirlos y reintentar.
+            //Rehabilitar campos fronteras desactivados previamente
             inputs.forEach(input => input.disabled = false);
-
         } else {
-            // Cualquier otro error (500, 404, etc.) se muestra como alerta genérica.
             alert(`Error al guardar los cambios. Status: ${response.status}`);
         }
     });
