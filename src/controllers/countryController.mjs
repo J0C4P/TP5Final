@@ -47,6 +47,7 @@ export async function editCountryController(req, res) {
     try {
         const { id } = req.params;
         const country = await obtenerPaisId(id);
+        console.log('Datos del país a editar:', country);
         res.render('editCountry', { errors:{}, oldData: country });
     } catch (error) {
         res.status(500).send({ error: 'Error al obtener el país' });

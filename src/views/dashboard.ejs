@@ -27,7 +27,6 @@
     </div>
     <p id="filter-count" class="mt-2 text-xs text-gray-500"></p>
 </div>
-
 <!-- Dashboard -->
 <div id="country-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
     <% if (countries && countries.length > 0) { %>
@@ -98,31 +97,21 @@
     </div>
 </div>
 
-<!-- Script de filtros y eliminación -->
+<!-- Scripts Auxiliares -->
 <script>
-    // --- Filtros del dashboard ---
-
-    // Se obtienen todas las tarjetas de país renderizadas en el HTML.
-    // Cada tarjeta tiene atributos data-* con sus datos en minúsculas,
-    // lo que permite comparaciones sin distinguir mayúsculas de minúsculas.
+    //Filtros del dashboard
     const cards = Array.from(document.querySelectorAll('.country-card'));
-    const totalCount = cards.length; // cantidad total de países, para el contador
+    const totalCount = cards.length;
 
     function applyFilters() {
-        // Se leen los valores actuales de cada control de filtro.
-        // .trim().toLowerCase() normaliza el texto para que la búsqueda no sea sensible a mayúsculas.
-        const search    = document.getElementById('filter-search').value.trim().toLowerCase();
+        const search = document.getElementById('filter-search').value.trim().toLowerCase();
 
-        // El select de subregión ya tiene los values en minúsculas (ej: 'south america'),
-        // por lo que no hace falta normalizar.
         const subregion = document.getElementById('filter-subregion').value;
 
-        // Si el campo de población mínima está vacío, Number('') devuelve NaN → || 0 lo convierte a 0.
-        // Si el máximo está vacío se usa Infinity para que no excluya nada por arriba.
-        const poblMin   = Number(document.getElementById('filter-pobl-min').value) || 0;
-        const poblMax   = Number(document.getElementById('filter-pobl-max').value) || Infinity;
+        const poblMin = Number(document.getElementById('filter-pobl-min').value) || 0;
+        const poblMax = Number(document.getElementById('filter-pobl-max').value) || Infinity;
 
-        let visible = 0; // contador de tarjetas que pasan todos los filtros
+        let visible = 0;
 
         let poblacionTotal = 0;
         let areaTotal = 0;
@@ -130,34 +119,29 @@
         let giniCount = 0;
 
         cards.forEach(card => {
-            // Búsqueda universal: el texto ingresado se compara contra el nombre del país
-            // (oficial + común) Y contra la capital. Basta con que coincida con uno de los dos.
-            // Si 'search' está vacío (!search es true) la condición pasa siempre.
+            //Busqueda Universal
             const matchSearch = !search ||
                 card.dataset.nombre.includes(search) ||
                 card.dataset.capital.includes(search);
 
-            // Filtro de subregión: comparación exacta (===) porque los valores del <select>
-            // son strings fijos que coinciden exactamente con data-subregion de cada tarjeta.
-            // Si el select está en 'Todas' (value=''), la condición pasa siempre.
+            //Filtro región
             const matchSubregion = !subregion || card.dataset.subregion === subregion;
 
-            // Filtro de rango de población: se convierte data-poblacion a número y se verifica
-            // que esté dentro del rango [poblMin, poblMax].
+            //Filtro Rango población
             const pobl = Number(card.dataset.poblacion);
             const matchPobl = pobl >= poblMin && pobl <= poblMax;
 
-            // Una tarjeta se muestra solo si pasa los tres filtros simultáneamente (AND).
+            //Mostrar país si cumple todos los filtros
             const show = matchSearch && matchSubregion && matchPobl;
             card.style.display = show ? '' : 'none';
             if (show) visible++;
 
-            // Acumulación de totales: solo se suman los datos de las tarjetas visibles.
+            //Acumulación de totales para paises visibles
             if (show) {
                 poblacionTotal += pobl;
                 const area = Number(card.dataset.area);
                 if (!isNaN(area)) areaTotal += area;
-                // data-gini es '' si el país no tiene dato → Number('') es NaN → se descarta.
+
                 const gini = Number(card.dataset.gini);
                 if (!isNaN(gini) && card.dataset.gini !== '') {
                     giniTotal += gini;
@@ -166,8 +150,7 @@
             }
         });
 
-        // Actualiza el contador de resultados debajo de los filtros.
-        // Si todos los países están visibles no se muestra nada (la barra queda limpia).
+        //Contador de países visibles
         const countEl = document.getElementById('filter-count');
         if (visible === totalCount) {
             countEl.textContent = '';
@@ -175,42 +158,34 @@
             countEl.textContent = `Mostrando ${visible} de ${totalCount} países`;
         }
 
-        // --- Actualizar sección de Totales ---
-        // Se formatean los números grandes con separadores de miles para mejor legibilidad.
-        // toLocaleString('es-AR') usa el formato argentino: punto como separador de miles.
+        //Actualización de totales
         document.getElementById('total-poblacion').textContent =
             poblacionTotal.toLocaleString('es-AR');
 
         document.getElementById('total-area').textContent =
             areaTotal.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + ' km²';
 
-        // El Gini promedio solo se muestra si al menos un país visible tiene dato de Gini.
-        // Si ninguno tiene dato, se muestra 'N/D' (No Disponible).
         document.getElementById('total-gini').textContent =
             giniCount > 0
                 ? (giniTotal / giniCount).toFixed(2)
                 : 'N/D';
     }
 
-    // Se registra el evento 'input' en cada control para que los filtros se apliquen
-    // en tiempo real con cada tecla pulsada o cambio de selección, sin necesidad de
-    // presionar ningún botón de confirmación.
-    ['filter-search','filter-subregion','filter-pobl-min','filter-pobl-max']
-        .forEach(id => document.getElementById(id).addEventListener('input', applyFilters));
+    //Aplicar filtros cada vez que el usuario escriba o cambie un filtro
+    ['filter-search','filter-subregion','filter-pobl-min','filter-pobl-max'].forEach(
+        id => document.getElementById(id).addEventListener('input', applyFilters)
+    );
 
-    // El botón 'Limpiar' resetea todos los controles a su estado vacío/por defecto
-    // y vuelve a ejecutar applyFilters para mostrar todos los países nuevamente.
+    //Botón Limpiar filtros
     document.getElementById('btn-clear-filters').addEventListener('click', () => {
         ['filter-search','filter-subregion','filter-pobl-min','filter-pobl-max']
             .forEach(id => document.getElementById(id).value = '');
         applyFilters();
     });
 
-    // Se llama a applyFilters al cargar la página para que los totales se calculen
-    // desde el primer momento, sin necesidad de que el usuario interactúe primero.
     applyFilters();
 
-    // --- Eliminación ---
+    //Botón Eliminar país
     async function confirmDelete(id, nombre) {
         console.log('Iniciando eliminación de país con ID:', id);
         const confirmed = confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`);
