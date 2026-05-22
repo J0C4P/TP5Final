@@ -1,91 +1,101 @@
-<div class="divide-y divide-black">
-    <div>
-        <a href="/countries" class="bg-gray-500">Volver al dashboard</a>
+<div class="max-w-xl mx-auto px-4 py-6">
+    <div class="mb-4">
+        <a href="/countries" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-900 transition-colors">&larr; Volver al dashboard</a>
     </div>
-    <form id="addCountryForm" action="" method="POST" class="divide-y divide-black">
-            <div class="py-2">
+    <form id="addCountryForm" action="" method="POST" class="bg-white border border-gray-200 rounded-lg p-6 flex flex-col gap-4">
+            <div class="flex flex-col gap-1">
             <% if (errors['nombre.oficial']) { %>
                 <p class="text-red-800 font-bold"> ▼ <%= errors['nombre.oficial'] %></p>
-                <label for="nombre.oficial" class="font-semibold">Nombre Oficial:</label>
-                <input type="text" id="nombre.oficial" name="nombre.oficial" class="border border-red-500 text-red-500 font-bold" value="<%= oldData['nombre.oficial'] %>" required>
+                <label for="nombre.oficial" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Nombre Oficial:</label>
+                <input type="text" id="nombre.oficial" name="nombre.oficial" class="border border-red-400 rounded px-2 py-1 text-sm text-red-600 focus:outline-none" value="<%= oldData['nombre.oficial'] %>" required>
             <% } else { %>
-                <label for="nombre.oficial" class="font-semibold">Nombre Oficial:</label>
-                <input type="text" id="nombre.oficial" name="nombre.oficial" class="border" value="<%= oldData['nombre.oficial'] %>" required>
+                <label for="nombre.oficial" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Nombre Oficial:</label>
+                <input type="text" id="nombre.oficial" name="nombre.oficial" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" value="<%= oldData['nombre.oficial'] %>" required>
             <% } %>
         </div>
-        <div class="py-2">
+        <div class="flex flex-col gap-1">
             <% if (errors['nombre.comun']) { %>
                 <p class="text-red-800 font-bold"> ▼ <%= errors['nombre.comun'] %></p>
-                <label for="nombre.comun" class="font-semibold">Nombre Común:</label>
-                <input type="text" id="nombre.comun" name="nombre.comun" class="border border-red-500 text-red-500 font-bold" value="<%= oldData['nombre.comun'] %>" required>
+                <label for="nombre.comun" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Nombre Común:</label>
+                <input type="text" id="nombre.comun" name="nombre.comun" class="border border-red-400 rounded px-2 py-1 text-sm text-red-600 focus:outline-none" value="<%= oldData['nombre.comun'] %>" required>
             <% } else { %>
-                <label for="nombre.comun" class="font-semibold">Nombre Común:</label>
-                <input type="text" id="nombre.comun" name="nombre.comun" class="border" value="<%= oldData['nombre.comun'] %>" required>
+                <label for="nombre.comun" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Nombre Común:</label>
+                <input type="text" id="nombre.comun" name="nombre.comun" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" value="<%= oldData['nombre.comun'] %>" required>
             <% } %>
         </div>
-        <div class="py-2">
+        <div class="flex flex-col gap-1">
             <% if (errors.capital) { %>
                 <p class="text-red-800 font-bold"> ▼ <%= errors.capital %></p>
-                <label for="capital" class="font-semibold text-red-700">Capital:</label>
-                <input type="text" id="capital" name="capital" class="border border-red-500 text-red-500 font-bold" value="<%= oldData.capital %>" required>
+                <label for="capital" class="text-xs uppercase tracking-wide font-semibold text-red-600">Capital:</label>
+                <input type="text" id="capital" name="capital" class="border border-red-400 rounded px-2 py-1 text-sm text-red-600 focus:outline-none" value="<%= oldData.capital %>" required>
             <% } else { %>
-                <label for="capital" class="font-semibold">Capital:</label>
-                <input type="text" id="capital" name="capital" class="border" value="<%= oldData.capital %>" required>
+                <label for="capital" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Capital:</label>
+                <input type="text" id="capital" name="capital" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" value="<%= oldData.capital %>" required>
             <% } %>
         </div>
-        <div class="py-2">
+        <div class="flex flex-col gap-1">
             <% if (errors['fronterasItem']) { %>
                 <p class="text-red-800 font-bold"> ▼ <%= errors['fronterasItem'] %></p>
-                <label for="fronteras" class="font-semibold text-red-700">Fronteras:</label>
+                <label for="fronteras" class="text-xs uppercase tracking-wide font-semibold text-red-600">Fronteras:</label>
             <% } else { %>
-                <label for="fronteras" class="font-semibold">Fronteras:</label>
+                <label for="fronteras" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Fronteras:</label>
             <% } %>
             <% const fronteras = oldData.fronteras || [] %>
             <ul>
-                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 1" value="<%= fronteras[0] || '' %>" required>
-                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 2" value="<%= fronteras[1] || ''%>">
-                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 3" value="<%= fronteras[2] || ''%>">
-                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 4" value="<%= fronteras[3] || ''%>">
-                <input type="text" id="fronteras" name="fronteras" class="border" placeholder="País Limítrofe 5" value="<%= fronteras[4] || ''%>">
+                <input type="text" id="fronteras" name="fronteras" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" placeholder="País Limítrofe 1" value="<%= fronteras[0] || '' %>">
+                <input type="text" id="fronteras" name="fronteras" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" placeholder="País Limítrofe 2" value="<%= fronteras[1] || ''%>">
+                <input type="text" id="fronteras" name="fronteras" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" placeholder="País Limítrofe 3" value="<%= fronteras[2] || ''%>">
+                <input type="text" id="fronteras" name="fronteras" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" placeholder="País Limítrofe 4" value="<%= fronteras[3] || ''%>">
+                <input type="text" id="fronteras" name="fronteras" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" placeholder="País Limítrofe 5" value="<%= fronteras[4] || ''%>">
             </ul>
         </div>
-        <div class="py-2">
+        <div class="flex flex-col gap-1">
             <% if (errors.area) { %>
                 <p class="text-red-800 font-bold"> ▼ <%= errors.area %></p>
-                <label for="area" class="font-semibold text-red-700">Área:</label>
-                <input type="float" id="area" name="area" class="border border-red-500 text-red-500 font-bold" value="<%= oldData.area %>" required>
+                <label for="area" class="text-xs uppercase tracking-wide font-semibold text-red-600">Área:</label>
+                <input type="float" id="area" name="area" class="border border-red-400 rounded px-2 py-1 text-sm text-red-600 focus:outline-none" value="<%= oldData.area %>" required>
             <% } else { %>
-                <label for="area" class="font-semibold">Área:</label>
-                <input type="float" id="area" name="area" class="border" value="<%= oldData.area %>" required>
+                <label for="area" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Área:</label>
+                <input type="float" id="area" name="area" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" value="<%= oldData.area %>" required>
             <% } %>
         </div>
-        <div class="py-2">
+        <div class="flex flex-col gap-1">
+            <% if (errors.gini) { %>
+                <p class="text-red-800 font-bold"> ▼ <%= errors.gini %></p>
+                <label for="gini" class="text-xs uppercase tracking-wide font-semibold text-red-600">Índice de Gini:</label>
+                <input type="float" id="gini" name="gini" class="border border-red-400 rounded px-2 py-1 text-sm text-red-600 focus:outline-none" value="<%= oldData.gini %>">
+            <% } else { %>
+                <label for="gini" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Índice de Gini:</label>
+                <input type="float" id="gini" name="gini" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" value="<%= oldData.gini %>">
+            <% } %>
+        </div>
+        <div class="flex flex-col gap-1">
             <% if (errors.poblacion) { %>
                 <p class="text-red-800 font-bold"> ▼ <%= errors.poblacion %></p>
-                <label for="poblacion" class="font-semibold text-red-700">Población:</label>
-                <input type="number" id="poblacion" name="poblacion" class="border border-red-500 text-red-500 font-bold" value="<%= oldData.poblacion %>" required>
+                <label for="poblacion" class="text-xs uppercase tracking-wide font-semibold text-red-600">Población:</label>
+                <input type="number" id="poblacion" name="poblacion" class="border border-red-400 rounded px-2 py-1 text-sm text-red-600 focus:outline-none" value="<%= oldData.poblacion %>" required>
             <% } else { %>
-                <label for="poblacion" class="font-semibold">Población:</label>
-                <input type="number" min="0" id="poblacion" name="poblacion" class="border" value="<%= oldData.poblacion %>" required>
+                <label for="poblacion" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Población:</label>
+                <input type="number" min="0" id="poblacion" name="poblacion" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" value="<%= oldData.poblacion %>" required>
             <% } %>
         </div>
-        <div class="py-2">
+        <div class="flex flex-col gap-1">
             <% if (errors.subregion) { %>
                 <p class="text-red-800 font-bold"> ▼ <%= errors.subregion %></p>
-                <label for="subregion" class="font-semibold text-red-700">Sub Región:</label>
-                <input type="text" id="subregion" name="subregion" class="border border-red-500 text-red-500 font-bold" value="<%= oldData.subregion %>" required>
+                <label for="subregion" class="text-xs uppercase tracking-wide font-semibold text-red-600">Sub Región:</label>
+                <input type="text" id="subregion" name="subregion" class="border border-red-400 rounded px-2 py-1 text-sm text-red-600 focus:outline-none" value="<%= oldData.subregion %>" required>
             <% } else { %>
-                <label for="subregion" class="font-semibold">Sub Región:</label>
-                <input type="text" id="subregion" name="subregion" class="border" value="<%= oldData.subregion %>" required>
+                <label for="subregion" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Sub Región:</label>
+                <input type="text" id="subregion" name="subregion" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400" value="<%= oldData.subregion %>" required>
             <% } %>
         </div>
-        <div class="flex border py-2">
-            <label for="utcOffset" class="font-semibold">Zona Horaria: UTC- </label>
-            <input type="number" min="-12" max="12" id="utcOffset" class="border w-9" placeholder="00" value="<%= oldData.zonahoraria %>" required>
-            <p> :00</p>
+        <div class="flex gap-1 items-center">
+            <label for="utcOffset" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Zona Horaria: UTC ±</label>
+            <input type="number" min="-12" max="12" id="utcOffset" class="border border-gray-300 rounded px-2 py-1 text-sm w-12 focus:outline-none focus:border-gray-400" placeholder="00" value="<%= oldData.zonahoraria %>" required>
+            <p class="text-sm text-gray-500">:00</p>
             <input type="hidden" id="zonahoraria" name="zonahoraria">
         </div>
-        <button type="submit" class="bg-blue-500 font-bold">Añadir País</button>
+        <button type="submit" class="self-start bg-gray-900 hover:bg-gray-700 text-white font-semibold text-sm px-4 py-2 rounded transition-colors">Añadir País</button>
 </div>
 <!-- Scripts auxiliares -->
 <script>

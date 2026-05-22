@@ -10,6 +10,7 @@ const countrySchema = new mongoose.Schema({
     subregion: String,
     poblacion: Number,
     area: Number,
+    gini: [Number],
     bandera: String,
     zonahoraria: String,
     creador: {

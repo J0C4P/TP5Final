@@ -12,7 +12,7 @@ import {body, param, validationResult} from 'express-validator';
 const router = express.Router();
 
 //Validaciones
-const validationCreateCountry = [
+const validationCountry = [
     body('nombre.oficial').trim()
         .notEmpty().withMessage('El nombre oficial es obligatorio')
         .isString().withMessage('El nombre oficial debe ser una cadena de texto')
@@ -25,48 +25,18 @@ const validationCreateCountry = [
         .isString().withMessage('La capital debe ser una cadena de texto')
         .isLength({min:3,max:90}).withMessage('El nombre de la capital debe tener entre 3 y 90 caracteres'),
     body('fronteras')
-        .isArray({min:1}).withMessage('Debe proporcionar al menos un país limítrofe'),
-    body('fronteras.*').trim()
-        .optional({checkFalsy:true})
-        .isString().withMessage('Cada país limítrofe debe ser una cadena de texto')
-        .isLength({min:3,max:3}).withMessage('Cada país limítrofe debe ser una abreviación de 3 caracteres')
-        ,
-    body('area').trim()
-        .notEmpty().withMessage('El área es obligatoria')
-        .isFloat({gt:0}).withMessage('El área debe ser un número positivo'),
-    body('poblacion').trim()
-        .notEmpty().withMessage('La población es obligatoria')
-        .isInt({gt:0}).withMessage('La población debe ser un número entero positivo'),
-    body('subregion').trim()
-        .notEmpty().withMessage('La subregión es obligatoria')
-        .isString().withMessage('La subregión debe ser una cadena de texto')
-        .isLength({min:3,max:90}).withMessage('La subregión debe tener entre 3 y 90 caracteres'),
-    body('zonahoraria').trim()
         .optional()
-        .isString().withMessage('La zona horaria debe ser una cadena de texto')
-]  
-const validationEditCountry = [
-    body('nombre.oficial').trim()
-        .notEmpty().withMessage('El nombre oficial es obligatorio')
-        .isString().withMessage('El nombre oficial debe ser una cadena de texto')
-        .isLength({min:3,max:90}).withMessage('El nombre oficial debe tener entre 3 y 90 caracteres'),
-    body('nombre.comun').trim()
-        .isString().withMessage('El nombre común debe ser una cadena de texto')
-        .isLength({min:3,max:90}).withMessage('El nombre común debe tener entre 3 y 90 caracteres'),
-    body('capital').trim()
-        .notEmpty().withMessage('La capital es obligatoria')    
-        .isString().withMessage('La capital debe ser una cadena de texto')
-        .isLength({min:3,max:90}).withMessage('El nombre de la capital debe tener entre 3 y 90 caracteres'),
-    body('fronteras')
-        .isArray({min:1}).withMessage('Debe proporcionar al menos un país limítrofe'),
+        .isArray({min:0}).withMessage('Debe proporcionar al menos un país limítrofe'),
     body('fronteras.*').trim()
         .optional({checkFalsy:true})
         .isString().withMessage('Cada país limítrofe debe ser una cadena de texto')
-        .isLength({min:3,max:3}).withMessage('Cada país limítrofe debe ser una abreviación de 3 caracteres')
-        ,
+        .isLength({min:3,max:3}).withMessage('Cada país limítrofe debe ser una abreviación de 3 caracteres'),
     body('area').trim()
         .notEmpty().withMessage('El área es obligatoria')
         .isFloat({gt:0}).withMessage('El área debe ser un número positivo'),
+    body('gini').trim()
+        .optional({checkFalsy:true})
+        .isFloat({min:0,max:100}).withMessage('El índice de Gini debe ser un número positivo entre cero y 100 (Ej: 45.5)'),
     body('poblacion').trim()
         .notEmpty().withMessage('La población es obligatoria')
         .isInt({gt:0}).withMessage('La población debe ser un número entero positivo'),
@@ -152,10 +122,10 @@ router.get('/mondo', obtenerPaisesMONDOController);
 router.get('/API', obtenerPaisesAPIController);
 //Formulario Crear País
 router.get('/create', createCountryController);
-router.post('/create', validationCreateCountry, validateCreateRequest, addCountryController);
+router.post('/create', validationCountry, validateCreateRequest, addCountryController);
 //Formulario Editar País
 router.get('/edit/:id', editCountryController);
-router.put('/edit/:id', validationEditCountry, validateEditRequest, updateCountryController);
+router.put('/edit/:id', validationCountry, validateEditRequest, updateCountryController);
 //Eliminar País
 router.delete('/eliminar/:id', deleteCountryController);
 

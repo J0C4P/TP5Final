@@ -1,13 +1,13 @@
 <!-- Barra de búsqueda y filtros -->
-<div class="border border-bottom-0 border-black">
-    <div class="flex flex-wrap">
-        <div class="px-2">
-            <label for="filter-search" class="block">Buscar (nombre o capital)</label>
-            <input id="filter-search" type="text" placeholder="Nombre o capital..." class="border">
+<div class="bg-white border-b border-gray-200 px-4 py-3">
+    <div class="flex flex-wrap items-end gap-4">
+        <div class="flex flex-col gap-1">
+            <label for="filter-search" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Buscar (nombre o capital)</label>
+            <input id="filter-search" type="text" placeholder="Nombre o capital..." class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400">
         </div>
-        <div class="px-2">
-            <label for="filter-subregion" class="block">Subregión</label>
-            <select id="filter-subregion" class="border">
+        <div class="flex flex-col gap-1">
+            <label for="filter-subregion" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Subregión</label>
+            <select id="filter-subregion" class="border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:border-gray-400">
                 <option value="">Todas</option>
                 <option value="south america">Sudamérica</option>
                 <option value="caribbean">Caribe</option>
@@ -15,64 +15,87 @@
                 <option value="north america">Norteamérica</option>
             </select>
         </div>
-        <div class="px-2">
-            <p class="flex">
-                <label class="block">Población</label><button id="btn-clear-filters" type="button" class="border mx-1">Limpiar</button>
-            </p>
-            <input id="filter-pobl-min" type="number" min="0" placeholder="Mín" class="border w-1/3">
-            &ndash;
-            <input id="filter-pobl-max" type="number" min="0" placeholder="Máx" class="border w-1/3">
+        <div class="flex flex-col gap-1">
+            <label class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Población</label>
+            <div class="flex items-center gap-1">
+                <input id="filter-pobl-min" type="number" min="0" placeholder="Mín" class="border border-gray-300 rounded px-2 py-1 text-sm w-24 focus:outline-none focus:border-gray-400">
+                <span class="text-gray-400 text-sm">&ndash;</span>
+                <input id="filter-pobl-max" type="number" min="0" placeholder="Máx" class="border border-gray-300 rounded px-2 py-1 text-sm w-24 focus:outline-none focus:border-gray-400">
+            </div>
         </div>
+        <button id="btn-clear-filters" type="button" class="self-end border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 transition-colors">Limpiar</button>
     </div>
+    <p id="filter-count" class="mt-2 text-xs text-gray-500"></p>
 </div>
 
 <!-- Dashboard -->
-<div id="country-list" class="divide-y divide-black">
+<div id="country-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
     <% if (countries && countries.length > 0) { %>
     <% countries.forEach(country => { %>
     <% if (country.nombre.oficial) { %>
-        <div class="py-0 country-card"
+        <div class="country-card flex flex-col border border-gray-200 rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-shadow"
              data-nombre="<%= (country.nombre.oficial + ' ' + (country.nombre.comun||'')).toLowerCase() %>"
              data-capital="<%= (country.capital||'').toString().toLowerCase() %>"
              data-subregion="<%= (country.subregion||'').toLowerCase() %>"
-             data-poblacion="<%= country.poblacion || 0 %>">
-            <h5 class="font-bold flex">
-                <p class="text-red-500"><%= country.nombre.oficial %></p>
-                <% if (country.bandera) { %>
-                    <p class="px-2">(<%= country.bandera %>)</p>
+             data-poblacion="<%= country.poblacion || 0 %>"
+             data-area="<%= country.area || 0 %>"
+             data-gini="<%= (country.gini && country.gini.length > 0) ? country.gini[country.gini.length - 1] : '' %>">
+            <div class="flex-grow">
+                <h5 class="font-semibold text-gray-900 flex items-center gap-1 mb-2">
+                    <span><%= country.nombre.oficial %></span>
+                    <% if (country.bandera) { %>
+                        <span class="text-base"><%= country.bandera %></span>
+                    <% } %>
+                </h5>
+                <% if (country.capital) { %>
+                    <p class="text-sm text-gray-600"><span class="font-medium">Capital:</span> <%= country.capital %></p>
                 <% } %>
-            </h5>
-            <% if (country.capital) { %>
-                <p class="font-semibold">Capitál: <%= country.capital %></p>
-            <% } %>
-            <% if (country.fronteras) { %>
-                <p class="font-semibold">Fronteras: <%= country.fronteras.join(', ') %></p>
-            <% } %>
-            <% if (country.area) { %>
-                <p class="font-semibold">Área: <%= country.area %></p>
-            <% } %>
-            <% if (country.poblacion) { %>
-                <p class="font-semibold">Población: <%= country.poblacion %></p>
-            <% } %>
-            <% if (country.zonahoraria) { %>
-                <p class="font-semibold">Zona horaria: <%= country.zonahoraria %></p>
-            <% } %>
-            <% if (country.creador) { %>
-                <p class="font-semibold">Creador: <%= country.creador %></p>
-            <% } %>
-            <a href="/countries/edit/<%= country._id %>" class="bg-yellow-500 font-bold">EDITAR</a>
-            <button type="button" class="bg-red-500 font-bold"
-            onclick="confirmDelete('<%= country._id%>','<%= country.nombre.oficial %>')">
-                ELIMINAR
-            </button>
+                <% if (country.fronteras && country.fronteras.length > 0) { %>
+                    <p class="text-sm text-gray-600"><span class="font-medium">Fronteras:</span> <%= country.fronteras.join(', ') %></p>
+                <% } %>
+                <% if (country.area) { %>
+                    <p class="text-sm text-gray-600"><span class="font-medium">Área:</span> <%= country.area %></p>
+                <% } %>
+                <% if (country.poblacion) { %>
+                    <p class="text-sm text-gray-600"><span class="font-medium">Población:</span> <%= country.poblacion %></p>
+                <% } %>
+                <% if (country.zonahoraria) { %>
+                    <p class="text-sm text-gray-600"><span class="font-medium">Zona horaria:</span> <%= country.zonahoraria %></p>
+                <% } %>
+                <% if (country.creador) { %>
+                    <p class="text-sm text-gray-600"><span class="font-medium">Creador:</span> <%= country.creador %></p>
+                <% } %>
+            </div>
+            <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                <a href="/countries/edit/<%= country._id %>" class="flex-1 text-center bg-amber-400 hover:bg-amber-500 text-gray-900 font-semibold text-xs px-2 py-1 rounded transition-colors">EDITAR</a>
+                <button type="button" class="flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold text-xs px-2 py-1 rounded transition-colors"
+                onclick="confirmDelete('<%= country._id%>','<%= country.nombre.oficial %>')">
+                    ELIMINAR
+                </button>
+            </div>
         </div>
     <% } %>
     <% }) %>
     <% } else { %>
-        <div>
+        <div class="col-span-full text-center py-12 text-gray-400">
             <p>No se encontraron países.</p>
         </div>
     <% } %>
+</div>
+<!-- Fila de Totales -->
+<div class="bg-white border-t border-gray-200 px-4 py-3 flex flex-wrap justify-around gap-6">
+    <div>
+        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Población Total</p>
+        <p id="total-poblacion" class="text-lg font-bold text-gray-900">0</p>
+    </div>
+    <div>
+        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Área Total</p>
+        <p id="total-area" class="text-lg font-bold text-gray-900">0</p>
+    </div>
+    <div>
+        <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Índice de Gini Promedio</p>
+        <p id="total-gini" class="text-lg font-bold text-gray-900">0</p>
+    </div>
 </div>
 
 <!-- Script de filtros y eliminación -->
@@ -101,6 +124,11 @@
 
         let visible = 0; // contador de tarjetas que pasan todos los filtros
 
+        let poblacionTotal = 0;
+        let areaTotal = 0;
+        let giniTotal = 0;
+        let giniCount = 0;
+
         cards.forEach(card => {
             // Búsqueda universal: el texto ingresado se compara contra el nombre del país
             // (oficial + común) Y contra la capital. Basta con que coincida con uno de los dos.
@@ -123,6 +151,19 @@
             const show = matchSearch && matchSubregion && matchPobl;
             card.style.display = show ? '' : 'none';
             if (show) visible++;
+
+            // Acumulación de totales: solo se suman los datos de las tarjetas visibles.
+            if (show) {
+                poblacionTotal += pobl;
+                const area = Number(card.dataset.area);
+                if (!isNaN(area)) areaTotal += area;
+                // data-gini es '' si el país no tiene dato → Number('') es NaN → se descarta.
+                const gini = Number(card.dataset.gini);
+                if (!isNaN(gini) && card.dataset.gini !== '') {
+                    giniTotal += gini;
+                    giniCount++;
+                }
+            }
         });
 
         // Actualiza el contador de resultados debajo de los filtros.
@@ -133,6 +174,22 @@
         } else {
             countEl.textContent = `Mostrando ${visible} de ${totalCount} países`;
         }
+
+        // --- Actualizar sección de Totales ---
+        // Se formatean los números grandes con separadores de miles para mejor legibilidad.
+        // toLocaleString('es-AR') usa el formato argentino: punto como separador de miles.
+        document.getElementById('total-poblacion').textContent =
+            poblacionTotal.toLocaleString('es-AR');
+
+        document.getElementById('total-area').textContent =
+            areaTotal.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + ' km²';
+
+        // El Gini promedio solo se muestra si al menos un país visible tiene dato de Gini.
+        // Si ninguno tiene dato, se muestra 'N/D' (No Disponible).
+        document.getElementById('total-gini').textContent =
+            giniCount > 0
+                ? (giniTotal / giniCount).toFixed(2)
+                : 'N/D';
     }
 
     // Se registra el evento 'input' en cada control para que los filtros se apliquen
@@ -149,10 +206,14 @@
         applyFilters();
     });
 
+    // Se llama a applyFilters al cargar la página para que los totales se calculen
+    // desde el primer momento, sin necesidad de que el usuario interactúe primero.
+    applyFilters();
+
     // --- Eliminación ---
     async function confirmDelete(id, nombre) {
         console.log('Iniciando eliminación de país con ID:', id);
-        const confirmed = confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.ID: ${id}`);
+        const confirmed = confirm(`¿Eliminar a ${nombre}? Esta acción no se puede deshacer.`);
         if (!confirmed) return;
 
         try {

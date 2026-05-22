@@ -26,21 +26,25 @@ class CountryRepository extends CRepository {
                 //Mapeo de datos
                 const countryData = {
                     nombre: {
-                        comun: country.name?.common || '',
-                        oficial: country.name?.official || ''
+                        comun:   country.translations?.spa?.common  || country.name?.common  || '',
+                        oficial: country.translations?.spa?.official || country.name?.official || ''
                     },
                     capital: country.capital || [],
                     fronteras: country.borders || [],
                     subregion: country.subregion || '',
                     poblacion: country.population || 0,
                     area: country.area || 0,
+                    gini: country.gini ? Object.values(country.gini) : null,
                     bandera: country.flag || '',
                     zonahoraria: country.timezones ? country.timezones[0] : '',
                     creador: 'Capdevila, José'
                 };
                 countries.push(new Country(countryData));
+                console.log(`Procesado país: ${countryData.nombre.comun},${countryData.gini}`);
             }
             console.log(`Se han obtenido ${countries.length} paises del endpoint`);
+            //Guardadar de paises en la base de datos
+            await Country.insertMany(countries);
             return countries;
         } catch (error) {
             console.error('Error al acceder a los paises del endpoint: ', error);
@@ -68,7 +72,7 @@ class CountryRepository extends CRepository {
         return await Country.findById(id);
     }
     async editarPais(id, paisData){
-        return await Country.findByIdAndUpdate(id, paisData, { new: true });
+        return await Country.findByIdAndUpdate(id, paisData, { returnDocument: 'after' });
     }
     
     async eliminarPais(id){
