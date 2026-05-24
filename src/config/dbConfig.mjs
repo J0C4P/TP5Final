@@ -2,7 +2,7 @@ import dns from 'node:dns/promises';
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 import mongoose from 'mongoose';
 
-//Función conectar a base de datos (simulada)
+//Función conectar a base de datos
 export async function connectDataBase(){
     try{
         await mongoose.connect('mongodb+srv://grupo-29:grupo-29@cluster0.blryo.mongodb.net/NodeMod3Cohorte5');

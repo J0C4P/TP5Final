@@ -43,8 +43,10 @@ class CountryRepository extends CRepository {
                 console.log(`Procesado país: ${countryData.nombre.comun},${countryData.gini}`);
             }
             console.log(`Se han obtenido ${countries.length} paises del endpoint`);
+            //--//
             //Guardadar de paises en la base de datos
-            await Country.insertMany(countries);
+            //await Country.insertMany(countries);
+            //--// 
             return countries;
         } catch (error) {
             console.error('Error al acceder a los paises del endpoint: ', error);

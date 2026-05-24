@@ -1,5 +1,7 @@
+<!-- Dashboard wrapper: flex column filling the main element -->
+<div class="flex flex-col h-full">
 <!-- Barra de búsqueda y filtros -->
-<div class="bg-white border-b border-gray-200 px-4 py-3">
+<div class="bg-white border-b border-gray-200 px-4 py-3 shrink-0">
     <div class="flex flex-wrap items-end gap-4">
         <div class="flex flex-col gap-1">
             <label for="filter-search" class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Buscar (nombre o capital)</label>
@@ -24,11 +26,12 @@
             </div>
         </div>
         <button id="btn-clear-filters" type="button" class="self-end border border-gray-300 rounded px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 transition-colors">Limpiar</button>
+        <button id="btn-export-csv" type="button" class="self-end border border-green-600 rounded px-3 py-1 text-sm text-green-700 font-semibold hover:bg-green-50 transition-colors">Exportar CSV</button>
     </div>
     <p id="filter-count" class="mt-2 text-xs text-gray-500"></p>
 </div>
 <!-- Dashboard -->
-<div id="country-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4">
+<div id="country-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 p-4 flex-1 overflow-auto content-start" style="min-height: 200px;">
     <% if (countries && countries.length > 0) { %>
     <% countries.forEach(country => { %>
     <% if (country.nombre.oficial) { %>
@@ -38,7 +41,11 @@
              data-subregion="<%= (country.subregion||'').toLowerCase() %>"
              data-poblacion="<%= country.poblacion || 0 %>"
              data-area="<%= country.area || 0 %>"
-             data-gini="<%= (country.gini && country.gini.length > 0) ? country.gini[country.gini.length - 1] : '' %>">
+             data-gini="<%= (country.gini && country.gini.length > 0) ? country.gini[country.gini.length - 1] : '' %>"
+             data-fronteras="<%= (country.fronteras && country.fronteras.length > 0) ? country.fronteras.join(' | ') : '' %>"
+             data-zonahoraria="<%= country.zonahoraria || '' %>"
+             data-nombre-display="<%= country.nombre.oficial %>"
+             data-creador="<%= country.creador || '' %>">
             <div class="flex-grow">
                 <h5 class="font-semibold text-gray-900 flex items-center gap-1 mb-2">
                     <span><%= country.nombre.oficial %></span>
@@ -81,8 +88,27 @@
         </div>
     <% } %>
 </div>
+<!-- Controles de Paginación -->
+<div id="pagination-bar" class="bg-white border-t border-gray-100 px-4 py-2 flex items-center justify-between gap-4 hidden shrink-0">
+    <span id="pagination-info" class="text-xs text-gray-500"></span>
+    <div class="flex items-center gap-1">
+        <button id="btn-first" type="button"
+            class="px-2 py-1 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            title="Primera página">«</button>
+        <button id="btn-prev" type="button"
+            class="px-2 py-1 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            title="Página anterior">‹</button>
+        <span id="pagination-pages" class="flex gap-1"></span>
+        <button id="btn-next" type="button"
+            class="px-2 py-1 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            title="Página siguiente">›</button>
+        <button id="btn-last" type="button"
+            class="px-2 py-1 text-xs rounded border border-gray-300 text-gray-600 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            title="Última página">»</button>
+    </div>
+</div>
 <!-- Fila de Totales -->
-<div class="bg-white border-t border-gray-200 px-4 py-3 flex flex-wrap justify-around gap-6">
+<div id="totals-bar" class="bg-white border-t border-gray-200 px-4 py-3 flex flex-wrap justify-around gap-6 shrink-0 mt-auto">
     <div>
         <p class="text-xs text-gray-500 uppercase tracking-wide font-semibold">Población Total</p>
         <p id="total-poblacion" class="text-lg font-bold text-gray-900">0</p>
@@ -96,94 +122,228 @@
         <p id="total-gini" class="text-lg font-bold text-gray-900">0</p>
     </div>
 </div>
+</div><!-- end dashboard wrapper -->
 
 <!-- Scripts Auxiliares -->
 <script>
-    //Filtros del dashboard
     const cards = Array.from(document.querySelectorAll('.country-card'));
     const totalCount = cards.length;
 
+    //Paginación
+    let currentPage = 1;
+    let filteredCards = [];   // cards that pass the current filter
+    let cardsPerPage  = 8;    // will be recalculated dynamically
+    let _cachedCardH = 0; // cached once from a real visible card
+
+    //Calcular cuantas cards caben por página 
+    function computeCardsPerPage() {
+        //Alturas de elementos de la página
+        const navbar     = document.querySelector('nav') || document.querySelector('header');
+        const filterBar  = document.querySelector('.bg-white.border-b');
+        const pagBar     = document.getElementById('pagination-bar');
+        const totalsBar  = document.getElementById('totals-bar');
+
+        const navH     = navbar    ? navbar.offsetHeight    : 56;
+        const filterH  = filterBar ? filterBar.offsetHeight : 60;
+        // Use 0 when pagination bar is hidden (it takes no space)
+        const pagH     = pagBar && !pagBar.classList.contains('hidden') ? pagBar.offsetHeight : 0;
+        const totalsH  = totalsBar ? totalsBar.offsetHeight : 64;
+
+        const availableH = window.innerHeight - navH - filterH - pagH - totalsH - 32; // 32px padding
+
+        //Calcular altura de las cards — sólo desde una card VISIBLE para evitar offsetHeight=0
+        if (!_cachedCardH) {
+            // First try: find any currently visible card
+            const visibleCard = Array.from(document.querySelectorAll('.country-card'))
+                                     .find(c => c.offsetHeight > 0);
+            // Fallback: first card in DOM (page just loaded, all visible)
+            const sampleCard = visibleCard || document.querySelector('.country-card');
+            if (sampleCard && sampleCard.offsetHeight > 0) {
+                _cachedCardH = sampleCard.offsetHeight + 16; // 16 = gap-4
+            }
+        }
+        const cardH = _cachedCardH || 180; // safe default
+
+        //Calcular cuántas columnas hay según el ancho
+        const gridEl = document.getElementById('country-list');
+        const gridW  = gridEl ? gridEl.offsetWidth : window.innerWidth;
+        let cols = 1;
+        if (gridW >= 1280) cols = 4;        // xl:grid-cols-4
+        else if (gridW >= 1024) cols = 3;   // lg:grid-cols-3
+        else if (gridW >= 640)  cols = 2;   // sm:grid-cols-2
+
+        const rows = Math.max(1, Math.floor(availableH / cardH));
+        return Math.max(cols, rows * cols);  // at least one full row
+    }
+
+    //Renderizar la página actual según los filtros y la paginación
+    function renderPage() {
+        const start = (currentPage - 1) * cardsPerPage;
+        const end   = start + cardsPerPage;
+
+        cards.forEach(card => { card.style.display = 'none'; });
+        filteredCards.forEach((card, i) => {
+            card.style.display = (i >= start && i < end) ? '' : 'none';
+        });
+
+        updatePaginationUI();
+    }
+
+    //Controles de la barra de paginación (números, botones activos/desactivados, info)
+    function updatePaginationUI() {
+        const total     = filteredCards.length;
+        const totalPages = Math.ceil(total / cardsPerPage) || 1;
+        const paginationBar = document.getElementById('pagination-bar');
+
+        if (totalPages <= 1) {
+            paginationBar.classList.add('hidden');
+            return;
+        }
+        paginationBar.classList.remove('hidden');
+
+        const start = Math.min((currentPage - 1) * cardsPerPage + 1, total);
+        const end   = Math.min(currentPage * cardsPerPage, total);
+        document.getElementById('pagination-info').textContent =
+            `Página ${currentPage} de ${totalPages} · mostrando ${start}–${end} de ${total}`;
+
+        //Prev/Siguiente/Primera/Última página
+        document.getElementById('btn-first').disabled = currentPage === 1;
+        document.getElementById('btn-prev').disabled  = currentPage === 1;
+        document.getElementById('btn-next').disabled  = currentPage === totalPages;
+        document.getElementById('btn-last').disabled  = currentPage === totalPages;
+
+        //Números de página
+        const pagesEl = document.getElementById('pagination-pages');
+        pagesEl.innerHTML = '';
+
+        const maxVisible = 7;
+        let pageStart = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+        let pageEnd   = Math.min(totalPages, pageStart + maxVisible - 1);
+        if (pageEnd - pageStart < maxVisible - 1) {
+            pageStart = Math.max(1, pageEnd - maxVisible + 1);
+        }
+
+        for (let p = pageStart; p <= pageEnd; p++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = p;
+            btn.title = `Página ${p}`;
+            const isActive = p === currentPage;
+            btn.className = [
+                'px-2 py-1 text-xs rounded border transition-colors',
+                isActive
+                    ? 'bg-gray-800 text-white border-gray-800 font-semibold cursor-default'
+                    : 'border-gray-300 text-gray-600 hover:bg-gray-100'
+            ].join(' ');
+            if (!isActive) btn.addEventListener('click', () => goToPage(p));
+            pagesEl.appendChild(btn);
+        }
+    }
+
+    //Función para cambiar de página
+    function goToPage(p) {
+        const totalPages = Math.ceil(filteredCards.length / cardsPerPage) || 1;
+        currentPage = Math.max(1, Math.min(p, totalPages));
+        renderPage();
+    }
+
+    document.getElementById('btn-first').addEventListener('click', () => goToPage(1));
+    document.getElementById('btn-prev').addEventListener('click',  () => goToPage(currentPage - 1));
+    document.getElementById('btn-next').addEventListener('click',  () => goToPage(currentPage + 1));
+    document.getElementById('btn-last').addEventListener('click',  () => {
+        goToPage(Math.ceil(filteredCards.length / cardsPerPage));
+    });
+
+    //Función Filtros y actualización de totales
     function applyFilters() {
-        const search = document.getElementById('filter-search').value.trim().toLowerCase();
-
+        const search   = document.getElementById('filter-search').value.trim().toLowerCase();
         const subregion = document.getElementById('filter-subregion').value;
+        const poblMin  = Number(document.getElementById('filter-pobl-min').value) || 0;
+        const poblMax  = Number(document.getElementById('filter-pobl-max').value) || Infinity;
 
-        const poblMin = Number(document.getElementById('filter-pobl-min').value) || 0;
-        const poblMax = Number(document.getElementById('filter-pobl-max').value) || Infinity;
-
-        let visible = 0;
+        //Calcular cuántas cards mostrar por página según el tamaño actual de la ventana
+        cardsPerPage = computeCardsPerPage();
 
         let poblacionTotal = 0;
-        let areaTotal = 0;
-        let giniTotal = 0;
-        let giniCount = 0;
+        let areaTotal      = 0;
+        let giniTotal      = 0;
+        let giniCount      = 0;
+
+        filteredCards = [];
 
         cards.forEach(card => {
-            //Busqueda Universal
-            const matchSearch = !search ||
-                card.dataset.nombre.includes(search) ||
-                card.dataset.capital.includes(search);
-
-            //Filtro región
+            const matchSearch   = !search || card.dataset.nombre.includes(search) || card.dataset.capital.includes(search);
             const matchSubregion = !subregion || card.dataset.subregion === subregion;
+            const pobl          = Number(card.dataset.poblacion);
+            const matchPobl     = pobl >= poblMin && pobl <= poblMax;
+            const show          = matchSearch && matchSubregion && matchPobl;
 
-            //Filtro Rango población
-            const pobl = Number(card.dataset.poblacion);
-            const matchPobl = pobl >= poblMin && pobl <= poblMax;
+            //Ocultar todas las cards inicialmente, luego mostrar solo las que coinciden con los filtros
+            card.style.display = 'none';
 
-            //Mostrar país si cumple todos los filtros
-            const show = matchSearch && matchSubregion && matchPobl;
-            card.style.display = show ? '' : 'none';
-            if (show) visible++;
-
-            //Acumulación de totales para paises visibles
             if (show) {
+                filteredCards.push(card);
+
+                //Acumular totales para las cards que pasan los filtros
                 poblacionTotal += pobl;
                 const area = Number(card.dataset.area);
                 if (!isNaN(area)) areaTotal += area;
-
                 const gini = Number(card.dataset.gini);
-                if (!isNaN(gini) && card.dataset.gini !== '') {
-                    giniTotal += gini;
-                    giniCount++;
-                }
+                if (!isNaN(gini) && card.dataset.gini !== '') { giniTotal += gini; giniCount++; }
             }
         });
 
-        //Contador de países visibles
+        //Resetear paginado 
+        currentPage = 1;
+        renderPage();
+
+        //Actualizar contador de resultados
         const countEl = document.getElementById('filter-count');
-        if (visible === totalCount) {
+        if (filteredCards.length === totalCount) {
             countEl.textContent = '';
         } else {
-            countEl.textContent = `Mostrando ${visible} de ${totalCount} países`;
+            countEl.textContent = `Mostrando ${filteredCards.length} de ${totalCount} países`;
         }
 
-        //Actualización de totales
+        //Calcular y mostrar totales
         document.getElementById('total-poblacion').textContent =
             poblacionTotal.toLocaleString('es-AR');
-
         document.getElementById('total-area').textContent =
             areaTotal.toLocaleString('es-AR', { maximumFractionDigits: 2 }) + ' km²';
-
         document.getElementById('total-gini').textContent =
-            giniCount > 0
-                ? (giniTotal / giniCount).toFixed(2)
-                : 'N/D';
+            giniCount > 0 ? (giniTotal / giniCount).toFixed(2) : 'N/D';
     }
 
-    //Aplicar filtros cada vez que el usuario escriba o cambie un filtro
+    //Recalcular cards por página al redimensionar
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            cardsPerPage = computeCardsPerPage();
+            
+            const totalPages = Math.ceil(filteredCards.length / cardsPerPage) || 1;
+            if (currentPage > totalPages) currentPage = totalPages;
+            renderPage();
+        }, 150);
+    });
+
+    //Enlazar filtros a la función de renderizado
     ['filter-search','filter-subregion','filter-pobl-min','filter-pobl-max'].forEach(
         id => document.getElementById(id).addEventListener('input', applyFilters)
     );
 
-    //Botón Limpiar filtros
     document.getElementById('btn-clear-filters').addEventListener('click', () => {
         ['filter-search','filter-subregion','filter-pobl-min','filter-pobl-max']
             .forEach(id => document.getElementById(id).value = '');
         applyFilters();
     });
 
-    applyFilters();
+    //Renderizado inicial
+    if (document.readyState === 'complete') {
+        applyFilters();
+    } else {
+        window.addEventListener('load', applyFilters);
+    }
 
     //Botón Eliminar país
     async function confirmDelete(id, nombre) {
@@ -192,9 +352,7 @@
         if (!confirmed) return;
 
         try {
-            const response = await fetch(`/countries/eliminar/${id}`, {
-                method: 'DELETE'
-            });
+            const response = await fetch(`/countries/eliminar/${id}`, { method: 'DELETE' });
 
             if (response.ok) {
                 window.location.reload();
@@ -203,7 +361,7 @@
                 try {
                     const body = await response.json();
                     if (body.mensaje) errorMsg += '\n' + body.mensaje;
-                    if (body.error) errorMsg += '\n' + body.error;
+                    if (body.error)   errorMsg += '\n' + body.error;
                 } catch (e) {
                     errorMsg += '\nError desconocido (status ' + response.status + ')';
                 }
@@ -215,4 +373,56 @@
             console.error('Fetch error:', err);
         }
     }
+
+    //Función Exportar a CSV
+    function exportCSV() {
+
+        //Formato de fila de encabezados
+        const headers = ['Nombre Oficial','Capital','Subregión','Población','Área (km²)','Gini','Fronteras','Zona Horaria','Creador'];
+
+        //Construir filas de datos de los países filtrados
+        const rows = filteredCards.map(card => [
+            card.dataset.nombreDisplay  || '',   // Nombre oficial (casing original)
+            card.dataset.capital        || '',   // Capital
+            card.dataset.subregion      || '',   // Subregión
+            card.dataset.poblacion      || '',   // Población
+            card.dataset.area           || '',   // Área en km²
+            card.dataset.gini           || '',   // Último índice de Gini registrado
+            card.dataset.fronteras      || '',   // Fronteras separadas por " | "
+            card.dataset.zonahoraria    || '',   // Zona horaria
+            card.dataset.creador        || ''    // Usuario que creó el registro
+        ]);
+
+        //Formateo celdas con comas, comillas ó '\n'
+        const escapeCell = val => {
+            const str = String(val);
+            return (str.includes(',') || str.includes('"') || str.includes('\n'))
+                ? '"' + str.replace(/"/g, '""') + '"'
+                : str;
+        };
+
+        //Separar celdas y filas
+        const csvContent = [headers, ...rows]
+            .map(row => row.map(escapeCell).join(','))
+            .join('\r\n');
+
+        //Crear 'Blob' y enlace de descarga
+        const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+
+
+        const url  = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        const timestamp = new Date().toISOString().slice(0, 10);
+        link.href = url;
+        link.download = `paises_${timestamp}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        //Liberar memoria
+        URL.revokeObjectURL(url);
+    }
+
+    //Botón de Exportar CSV
+    document.getElementById('btn-export-csv').addEventListener('click', exportCSV);
 </script>

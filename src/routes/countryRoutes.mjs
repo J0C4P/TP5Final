@@ -131,12 +131,6 @@ router.delete('/eliminar/:id', deleteCountryController);
 
 /*
 >>Pendientes<<
->Rutas:
->> get /countries/editar/:id - Formulario editar país existente
->> put /countries/editar/:id - Actualizar un país existente
-
->Busqueda y filtado por nombre, capital,población(rango), subregión.
->Gini (?)
 >Exportar filtrado a CSV
 
 */

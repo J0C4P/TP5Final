@@ -1,0 +1,8 @@
+<svg width="680" height="680" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Info icon</title>
+  <g transform="translate(340,340)" fill="none" stroke="#111">
+    <circle r="210" stroke-width="10"/>
+    <circle cx="0" cy="-80" r="18" fill="#111" stroke="none"/>
+    <line x1="0" y1="-20" x2="0" y2="120" stroke-width="10" stroke-linecap="round"/>
+  </g>
+</svg>

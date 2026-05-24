@@ -1,0 +1,9 @@
+<svg width="680" height="680" viewBox="0 0 680 680" xmlns="http://www.w3.org/2000/svg" role="img">
+  <title>Contact icon</title>
+  <g transform="translate(340,340)" fill="none" stroke="#111">
+    <clipPath id="c"><circle r="210"/></clipPath>
+    <circle r="210" stroke-width="10"/>
+    <circle cx="0" cy="-60" r="65" stroke-width="10"/>
+    <path d="M-155,155 C-155,30 155,30 155,155" stroke-width="10" stroke-linecap="round" clip-path="url(#c)"/>
+  </g>
+</svg>

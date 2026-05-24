@@ -16,10 +16,10 @@ app.use(express.urlencoded({extended:true}));
 
 //Configurar botones del link
 const navbarLinks = [
-    { text: 'Países', href: '/countries' },
-    { text: 'Crear País', href: '/countries/create' },
-    { text: 'Info', href: '/countries/about' },
-    { text: 'Contacto', href: '/countries/contact' }
+    { text: 'Países', icon:'/icons/globe-dash.svg', href: '/countries' },
+    { text: 'Crear País', icon:'/icons/globe-plus.svg', href: '/countries/create' },
+    { text: 'Info', icon:'/icons/info.svg', href: '/countries/about' },
+    { text: 'Contacto', icon:'/icons/contact.svg', href: '/countries/contact' }
 ];
 app.use((req, res, next) => {
     res.locals.navbarLinks = navbarLinks;

@@ -9,7 +9,7 @@ export async function obtenerPaisesAPIController(req, res) {
     try {
         const countries = await obtenerPaisesAPI();
         //Renderizar en dashboard.ejs
-        res.status(200).render('dashboard', { countries: countries });
+        res.status(200).render('dashboard', { title:'DashBoard(API)', countries: countries });
     } catch (error) {
         res.status(500).send({ error: 'Error al obtener los países' });
     }
@@ -18,7 +18,7 @@ export async function obtenerPaisesMONDOController(req, res) {
     try {
         const countries = await obtenerPaisesMONDO();
         //Renderizar en dashboard.ejs
-        res.status(200).render('dashboard', { countries: countries });
+        res.status(200).render('dashboard', { title:'DashBoard', countries: countries });
     } catch (error) {
         res.status(500).send({ error: 'Error al obtener los países' })
     }
@@ -48,7 +48,7 @@ export async function editCountryController(req, res) {
         const { id } = req.params;
         const country = await obtenerPaisId(id);
         console.log('Datos del país a editar:', country);
-        res.render('editCountry', { errors:{}, oldData: country });
+        res.render('editCountry', { title:'Editar País', errors:{}, oldData: country });
     } catch (error) {
         res.status(500).send({ error: 'Error al obtener el país' });
     }
