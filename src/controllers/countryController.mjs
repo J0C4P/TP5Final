@@ -73,3 +73,13 @@ export async function deleteCountryController(req, res) {
         res.status(500).json({ error: 'Error al eliminar el país' });
     }
 }
+//Renderizar Landing
+export async function renderLanding(req, res) {
+    try {
+        //Renderizar en dashboard.ejs
+        res.status(200).render('landing', { title:'Sprint5-Final'});
+    } catch (error) {
+        res.status(500).send({ error: 'Error' })
+    }
+}
+

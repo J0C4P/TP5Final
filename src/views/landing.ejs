@@ -1,0 +1,119 @@
+<div class="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-8">
+
+    <!-- Hero -->
+    <div class="bg-white border border-gray-200 rounded-lg p-8 flex flex-col gap-4">
+        <div>
+            <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-2">Trabajo Final &mdash; Sprint 5 &mdash; Nodo Tecnológico</p>
+            <h1 class="text-2xl font-bold text-gray-900 leading-snug">Gestión de países hispanohablantes de América</h1>
+        </div>
+        <p class="text-sm text-gray-500 leading-relaxed max-w-xl">
+            Aplicación web full-stack para visualizar, crear, editar, filtrar y exportar
+            un catálogo de países construido sobre datos reales de la REST Countries API.
+        </p>
+        <div class="flex flex-wrap gap-3 pt-1">
+            <a href="/countries"
+               class="inline-block bg-gray-900 hover:bg-gray-700 text-white text-sm font-semibold px-5 py-2 rounded transition-colors">
+                Ir al Dashboard &rarr;
+            </a>
+            <a href="https://github.com/J0C4P/TP5Final" target="_blank" rel="noopener noreferrer"
+               class="inline-block border border-gray-300 hover:bg-gray-100 text-gray-600 text-sm font-medium px-5 py-2 rounded transition-colors">
+                Ver en GitHub
+            </a>
+        </div>
+    </div>
+
+    <!-- Features -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-1">Funcionalidades</p>
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Todo lo que incluye</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+            <div class="flex items-start gap-3 border border-gray-100 rounded-lg p-4">
+                <span class="text-gray-300 font-bold text-sm mt-0.5">&#9656;</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800 mb-0.5">Dashboard paginado</p>
+                    <p class="text-xs text-gray-500 leading-relaxed">Vista en grilla con paginación dinámica que se adapta automáticamente al tamaño de la pantalla.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3 border border-gray-100 rounded-lg p-4">
+                <span class="text-gray-300 font-bold text-sm mt-0.5">&#9656;</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800 mb-0.5">Filtros en tiempo real</p>
+                    <p class="text-xs text-gray-500 leading-relaxed">Búsqueda por nombre o capital, filtro por subregión y rango de población, sin recargar la página.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3 border border-gray-100 rounded-lg p-4">
+                <span class="text-gray-300 font-bold text-sm mt-0.5">&#9656;</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800 mb-0.5">Creación de países</p>
+                    <p class="text-xs text-gray-500 leading-relaxed">Formulario con validación server-side completa y retroalimentación de errores campo por campo.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3 border border-gray-100 rounded-lg p-4">
+                <span class="text-gray-300 font-bold text-sm mt-0.5">&#9656;</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800 mb-0.5">Exportar a CSV</p>
+                    <p class="text-xs text-gray-500 leading-relaxed">Descarga la lista filtrada completa como archivo .csv con codificación UTF-8 BOM para Excel.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3 border border-gray-100 rounded-lg p-4">
+                <span class="text-gray-300 font-bold text-sm mt-0.5">&#9656;</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800 mb-0.5">Totales en vivo</p>
+                    <p class="text-xs text-gray-500 leading-relaxed">Barra que recalcula población total, área total e índice de Gini promedio según los filtros activos.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-1">Stack</p>
+        <h2 class="text-base font-semibold text-gray-900 mb-4">Tecnologías utilizadas</h2>
+        <div class="flex flex-wrap gap-2">
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">Node.js</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">Express.js v5</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">MongoDB Atlas</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">Mongoose v9</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">EJS</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">express-ejs-layouts</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">express-validator</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">Tailwind CSS</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">ESModules (.mjs)</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">Fetch API</span>
+            <span class="text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded px-2 py-1">Blob / CSV client-side</span>
+        </div>
+    </div>
+
+    <!-- API Source -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <p class="text-xs text-gray-400 uppercase tracking-widest font-semibold mb-1">Fuente de datos</p>
+        <h2 class="text-base font-semibold text-gray-900 mb-4">REST Countries API</h2>
+        <div class="flex flex-col gap-3">
+            <p class="text-sm font-semibold text-gray-800">
+                restcountries.com
+                <a href="https://restcountries.com" target="_blank" rel="noopener noreferrer"
+                   class="ml-2 text-xs text-gray-400 hover:text-gray-700 font-normal transition-colors">&#8599; restcountries.com</a>
+            </p>
+            <p class="text-xs text-gray-500 leading-relaxed">
+                API pública y gratuita que provee datos geográficos, demográficos y económicos de todos los países del mundo.
+                Este proyecto consume el endpoint de región
+                <code class="bg-gray-100 border border-gray-200 rounded px-1 py-0.5 text-gray-700">GET /v3.1/region/america</code>,
+                filtrando únicamente los países con idioma oficial español.
+            </p>
+            <p class="text-xs text-gray-400 leading-relaxed">
+                Campos consumidos: nombre oficial y común en español, capital, fronteras, subregión,
+                población, área, índice de Gini, bandera y zona horaria.
+            </p>
+        </div>
+    </div>
+
+    <!-- Author credit -->
+    <p class="text-right text-xs text-gray-400">Desarrollado por <span class="font-semibold text-gray-600">Capdevila, José</span> &mdash; 2026</p>
+
+</div>

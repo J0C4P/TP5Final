@@ -1,7 +1,167 @@
-<section class="max-w-2xl mx-auto px-4 py-8">
-    <div class="bg-white border border-gray-200 rounded-lg p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-3">Acerca de</h1>
-        <p class="text-gray-600 mb-3">Bienvenido a la aplicación de Países. Aquí puedes ver, agregar, editar y eliminar tus países favoritos.</p>
-        <p class="text-gray-600">Esta aplicación fue creada para gestionar un catálogo de países como proyecto usando Node.js, Express, MongoDB y EJS.</p>
+<section class="max-w-3xl mx-auto px-4 py-8 flex flex-col gap-6">
+
+    <!-- Header -->
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Acerca del Proyecto</h1>
+        <p class="mt-1 text-sm text-gray-500">Trabajo Final &mdash; Sprint 5 &mdash; Nodo Tecnológico &mdash; Cohorte 5</p>
     </div>
+
+    <!-- Tech Stack -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="text-base font-semibold text-gray-900 uppercase tracking-wide mb-4">Tecnologías utilizadas</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+            <div class="flex items-start gap-3">
+                <span class="mt-0.5 text-green-600 font-bold text-sm">▸</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Node.js</p>
+                    <p class="text-xs text-gray-500">Entorno de ejecución JavaScript del lado del servidor. Base del proyecto.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <span class="mt-0.5 text-green-600 font-bold text-sm">▸</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Express.js v5</p>
+                    <p class="text-xs text-gray-500">Framework web para manejo de rutas, middlewares y servidor HTTP.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <span class="mt-0.5 text-green-600 font-bold text-sm">▸</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">MongoDB + Mongoose</p>
+                    <p class="text-xs text-gray-500">Base de datos NoSQL en la nube (Atlas). Mongoose provee el esquema y ORM.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <span class="mt-0.5 text-green-600 font-bold text-sm">▸</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">EJS + express-ejs-layouts</p>
+                    <p class="text-xs text-gray-500">Motor de plantillas para renderizado server-side con soporte de layouts compartidos.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <span class="mt-0.5 text-green-600 font-bold text-sm">▸</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">express-validator</p>
+                    <p class="text-xs text-gray-500">Validación y sanitización de datos de formularios en el lado del servidor.</p>
+                </div>
+            </div>
+
+            <div class="flex items-start gap-3">
+                <span class="mt-0.5 text-green-600 font-bold text-sm">▸</span>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Tailwind CSS (CDN)</p>
+                    <p class="text-xs text-gray-500">Framework de utilidades CSS para el diseño y maquetación de la interfaz.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- API Source -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="text-base font-semibold text-gray-900 uppercase tracking-wide mb-4">Fuente de datos</h2>
+        <div class="flex items-start gap-3">
+            <span class="mt-0.5 text-blue-500 font-bold text-sm">▸</span>
+            <div>
+                <p class="text-sm font-semibold text-gray-800">
+                    REST Countries API
+                    <a href="https://restcountries.com" target="_blank" rel="noopener noreferrer"
+                       class="ml-2 text-xs text-blue-500 hover:underline font-normal">restcountries.com ↗</a>
+                </p>
+                <p class="text-xs text-gray-500 mt-1">
+                    API pública que provee información geográfica, demográfica y económica de los países del mundo.
+                    Se utiliza el endpoint <code class="bg-gray-100 px-1 rounded">/v3.1/region/america</code>,
+                    filtrando únicamente los países de habla hispana para la carga inicial de datos.
+                </p>
+                <p class="text-xs text-gray-400 mt-2">Campos consumidos: nombre oficial y común (en español), capital, fronteras, subregión, población, área, índice de Gini, bandera emoji y zona horaria.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Architecture -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="text-base font-semibold text-gray-900 uppercase tracking-wide mb-4">Arquitectura</h2>
+        <p class="text-xs text-gray-500 mb-3">El proyecto sigue una arquitectura en capas MVC con separación de responsabilidades:</p>
+        <ol class="flex flex-col gap-2">
+            <li class="flex items-start gap-3">
+                <span class="text-xs font-bold text-gray-400 w-16 shrink-0">Routes</span>
+                <p class="text-xs text-gray-600">Reciben las peticiones HTTP, aplican validaciones con <em>express-validator</em> y delegan al controlador correspondiente.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-xs font-bold text-gray-400 w-16 shrink-0">Controllers</span>
+                <p class="text-xs text-gray-600">Coordinan la lógica de cada petición: invocan el servicio y deciden qué respuesta devolver (render, redirect, JSON).</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-xs font-bold text-gray-400 w-16 shrink-0">Services</span>
+                <p class="text-xs text-gray-600">Capa intermedia que abstrae la lógica de negocio y delega el acceso a datos al repositorio.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-xs font-bold text-gray-400 w-16 shrink-0">Repository</span>
+                <p class="text-xs text-gray-600">Único punto de acceso a la base de datos. Implementa una clase base abstracta (<em>CRepository</em>) con métodos sobrescritos.</p>
+            </li>
+            <li class="flex items-start gap-3">
+                <span class="text-xs font-bold text-gray-400 w-16 shrink-0">Model</span>
+                <p class="text-xs text-gray-600">Esquema Mongoose que define la estructura del documento <em>Country</em> en la colección <em>Grupo-29</em>.</p>
+            </li>
+        </ol>
+    </div>
+
+    <!-- Special Considerations -->
+    <div class="bg-white border border-gray-200 rounded-lg p-6">
+        <h2 class="text-base font-semibold text-gray-900 uppercase tracking-wide mb-4">Consideraciones especiales</h2>
+        <ul class="flex flex-col gap-3">
+
+            <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-amber-500 font-bold text-sm">⚠</span>
+                <p class="text-xs text-gray-600">
+                    <span class="font-semibold text-gray-800">Paginación dinámica:</span>
+                    La cantidad de países por página se recalcula automáticamente según el tamaño de la ventana y la altura real de las cards, garantizando que el contenido siempre llene la pantalla sin desbordarse.
+                </p>
+            </li>
+
+            <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-amber-500 font-bold text-sm">⚠</span>
+                <p class="text-xs text-gray-600">
+                    <span class="font-semibold text-gray-800">Filtrado client-side:</span>
+                    Los filtros de búsqueda, subregión y población operan íntegramente en el navegador sobre los datos ya renderizados, sin realizar nuevas peticiones al servidor.
+                </p>
+            </li>
+
+            <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-amber-500 font-bold text-sm">⚠</span>
+                <p class="text-xs text-gray-600">
+                    <span class="font-semibold text-gray-800">Exportación CSV:</span>
+                    El botón "Exportar CSV" genera y descarga el archivo íntegramente en el cliente, exportando siempre la lista filtrada completa (no solo la página visible) con codificación UTF-8 BOM para compatibilidad con Excel.
+                </p>
+            </li>
+
+            <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-amber-500 font-bold text-sm">⚠</span>
+                <p class="text-xs text-gray-600">
+                    <span class="font-semibold text-gray-800">Edición sin recarga:</span>
+                    El formulario de edición envía los datos vía <em>fetch</em> (PUT + JSON) y maneja los errores de validación inyectándolos en el DOM, sin recargar la página.
+                </p>
+            </li>
+
+            <li class="flex items-start gap-3">
+                <span class="mt-0.5 text-amber-500 font-bold text-sm">⚠</span>
+                <p class="text-xs text-gray-600">
+                    <span class="font-semibold text-gray-800">Zona horaria:</span>
+                    El campo de zona horaria se presenta como un offset numérico UTC (ej: <code class="bg-gray-100 px-1 rounded">UTC-3:00</code>) y se convierte al formato estándar antes de enviarse al servidor.
+                </p>
+            </li>
+
+        </ul>
+    </div>
+
+    <!-- Author -->
+    <div class="text-right text-xs text-gray-400">
+        Desarrollado por <span class="font-semibold text-gray-600">Capdevila, José</span> &mdash; 2026
+    </div>
+
 </section>

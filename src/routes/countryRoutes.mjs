@@ -117,8 +117,7 @@ router.get('/about', (req, res) => {
 router.get('/contact', (req, res) => {
     res.render('contact', { title: 'Contacto' });
 });
-//Obtener países desde la base de datos o API
-router.get('/mondo', obtenerPaisesMONDOController);
+//Obtener países desde la API
 router.get('/API', obtenerPaisesAPIController);
 //Formulario Crear País
 router.get('/create', createCountryController);
@@ -128,11 +127,5 @@ router.get('/edit/:id', editCountryController);
 router.put('/edit/:id', validationCountry, validateEditRequest, updateCountryController);
 //Eliminar País
 router.delete('/eliminar/:id', deleteCountryController);
-
-/*
->>Pendientes<<
->Exportar filtrado a CSV
-
-*/
 
 export default router;
